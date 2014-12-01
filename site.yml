@@ -1,0 +1,9 @@
+---
+
+- name: Flightradar
+  hosts: fr24
+  user: root
+  roles:
+    - fr24
+  vars:
+    - fr24_url: https://dl.dropbox.com/u/66906/fr24feed_arm-le_242s.tgz

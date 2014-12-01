@@ -1,0 +1,87 @@
+---
+
+- name: Install FR24 requirements 
+  apt: name={{ item }}
+  with_items:
+  - make
+  - cmake 
+  - gcc 
+  - pkg-config 
+  - libusb-1.0-0
+  - libusb-1.0-0-dev
+  - libc-dev
+  tags:
+    - fr24
+
+- name: Blacklist bad driver
+  copy: src=etc/modprobe.d/dvb-t.conf dest=/etc/modprobe.d/dvb-t.conf
+  tags:
+    - fr24
+
+- name: Add osmocom key
+  action: shell /usr/bin/ssh-keyscan -H git.osmocom.org >> /etc/ssh/ssh_known_hosts
+  tags: 
+    - fr24
+
+- name: Clone rtl-sdr
+  git: repo=git://git.osmocom.org/rtl-sdr.git dest=/root/rtl-sdr
+  tags:
+    - fr24
+
+- name: Make rtl-sdr
+  shell: cd rtl-sdr && mkdir -p build && cd build && cmake ../ -DINSTALL_UDEV_RULES=ON && make && make install && make clean
+  tags:
+    - fr24
+
+- name: Run ldconfig
+  shell: ldconfig
+  tags:
+    - fr24
+
+- name: Clone dump1090
+  git: repo=https://github.com/MalcolmRobb/dump1090.git dest=/root/dump1090
+  tags:
+    - fr24
+
+- name: Make dump1090
+  shell: make chdir=/root/dump1090/
+  tags:
+    - fr24
+
+- name: Download Flightradar24
+  shell: wget {{ fr24_url }} && tar xvzf fr24feed_arm-le_*.tgz && mv fr24feed_arm-le_*s flightradar24 && chmod +x flightradar24 && rm fr24feed_arm-le_*.tgz
+  tags:
+    - fr24
+
+- name: Create Flightradar24 launch script
+  copy: src=root/flightradar24.sh dest=/root/flightradar24.sh.example mode=0755
+  tags:
+    - fr24
+
+- name: Create Flightradar24 rc.local.d script
+  copy: src=etc/rc.local.d/fr24 dest=/etc/rc.local.d/90_fr24 mode=0755
+  tags:
+    - fr24
+
+- name: Install monitoring 
+  apt: name={{ item }}
+  with_items:
+  - vnstat
+  - monit
+  tags:
+    - fr24
+
+- name: Set monitrc
+  copy: src=etc/monit/monitrc dest=/etc/monit/monitrc
+  notify: restart monit
+  tags: 
+    - fr24
+
+- name: Set reboot_no_internet.sh
+  copy: src=usr/local/bin/reboot_no_internet.sh dest=/usr/local/bin/reboot_no_internet.sh mode=0755
+  tags: 
+    - fr24
+
+- cron: name="reboot_no_internet" minute="15,45" job="/usr/local/bin/reboot_no_internet.sh"
+  tags:
+    - fr24

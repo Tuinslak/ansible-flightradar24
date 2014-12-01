@@ -1,0 +1,6 @@
+#!/bin/sh
+# Execute Flightradar24 script
+
+/root/flightradar24.sh
+
+exit 0

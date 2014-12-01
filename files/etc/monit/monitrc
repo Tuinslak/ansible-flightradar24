@@ -1,0 +1,66 @@
+###############################################################################
+## Monit control file
+###############################################################################
+##
+###############################################################################
+## Global section
+###############################################################################
+##
+ set daemon 300            # check services at 5-minute intervals
+   with start delay 300    # optional: delay the first check by 5-minute 
+ set logfile syslog facility log_daemon                       
+ set idfile /var/lib/monit/id
+ set statefile /var/lib/monit/state
+ set mailserver localhost
+ set eventqueue
+     basedir /var/lib/monit/events # set the base directory where events will be stored
+     slots 100                     # optionally limit the queue size
+ set alert alert@tiete.be          # receive all alerts
+
+#
+###############################################################################
+## Services
+###############################################################################
+##
+ check process cron with pidfile /var/run/crond.pid
+   group system
+   start program = "/etc/init.d/cron start"
+   stop  program = "/etc/init.d/cron stop"
+   if 5 restarts within 5 cycles then timeout
+
+ check process openvpn with pidfile /var/run/openvpn.tiete.pid
+   start program = "/etc/init.d/openvpn start"
+   stop program = "/etc/init.d/openvpn stop"
+   if 5 restarts within 5 cycles then timeout 
+
+ check host vpn with address 10.9.8.1
+   if failed icmp type echo count 10 with timeout 10 seconds then exec "/etc/init.d/openvpn restart"
+
+ check process postfix with pidfile /var/spool/postfix/pid/master.pid
+   group mail
+   start program = "/etc/init.d/postfix start"
+   stop  program = "/etc/init.d/postfix stop"
+   if failed port 25 protocol smtp then restart
+   if 5 restarts within 5 cycles then timeout
+
+ check process ntpd with pidfile /var/run/ntpd.pid
+   start program = "/etc/init.d/ntp start"
+   stop  program = "/etc/init.d/ntp stop"
+   if failed host 127.0.0.1 port 123 type udp then alert
+   if 5 restarts within 5 cycles then timeout
+
+ check process sshd with pidfile /var/run/sshd.pid
+   start program  "/etc/init.d/ssh start"
+   stop program  "/etc/init.d/ssh stop"
+   if failed port 22 protocol ssh then restart
+   if 5 restarts within 5 cycles then timeout
+
+ check host public with address 8.8.8.8
+   if failed icmp type echo count 10 with timeout 10 seconds then exec "/etc/init.d/networking restart"
+
+#
+###############################################################################
+## Includes
+###############################################################################
+##
+   include /etc/monit/conf.d/*
