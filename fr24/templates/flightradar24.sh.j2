@@ -1,0 +1,10 @@
+#!/bin/bash
+### pro script
+KEY={{ fr24key }}
+DIR=/root/
+
+# go to correct dir
+cd $DIR
+
+# Start Flightradar24
+screen -dmS flightradar24 ./flightradar24 --fr24key=$KEY

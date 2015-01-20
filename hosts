@@ -1,3 +1,3 @@
 [fr24]
-radar01
-radar02
+radar01		fr24key=abcdef
+radar02		fr24key=ghijkl

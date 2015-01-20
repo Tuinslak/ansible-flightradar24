@@ -48,13 +48,23 @@
   tags:
     - fr24
 
+- name: Symlink dump1090
+  shell: ln -sf /root/dump1090/dump1090 /bin/dump1090
+  tags:
+    - fr24
+
 - name: Download Flightradar24
-  shell: wget {{ fr24_url }} && tar xvzf fr24feed_arm-le_*.tgz && mv fr24feed_arm-le_*s flightradar24 && chmod +x flightradar24 && rm fr24feed_arm-le_*.tgz
+  shell: wget {{ fr24_url }} && tar xvzf fr24feed_*_armv7l.tgz && mv fr24feed_armv7l/fr24feed flightradar24 && chmod +x flightradar24 && rm fr24feed_*_armv7l.tgz && rm -r fr24feed_armv7l
+  tags:
+    - fr24
+
+- name: Create Flightradar24 config
+  template: src=fr24feed.ini.j2 dest=/etc/fr24feed.ini
   tags:
     - fr24
 
 - name: Create Flightradar24 launch script
-  copy: src=root/flightradar24.sh dest=/root/flightradar24.sh.example mode=0755
+  template: src=flightradar24.sh.j2 dest=/root/flightradar24.sh mode=0755
   tags:
     - fr24
 
