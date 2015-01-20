@@ -20,8 +20,8 @@ This requires a basic working Linux system. While most dependencies are installe
 Manual labour
 =============
 
-* Be sure to edit `/root/flightradar24.sh` with your key. 
-* Be sure to [set the](https://github.com/Tuinslak/anisble-flightradar24/blob/master/site.yml) `fr24_url` to your architecture and to the latest version: [RPi]](http://feed.flightradar24.com/raspberry-pi/) & [Linux](http://feed.flightradar24.com/linux/).  
+* Be sure to edit `hosts` file with your `fr24key` key(s). 
+* Be sure to [set the](https://github.com/Tuinslak/anisble-flightradar24/blob/master/site.yml) `fr24_url` to your architecture and to the latest version: [RPi](http://feed.flightradar24.com/raspberry-pi/) & [Linux](http://feed.flightradar24.com/linux/). EfikaMX devices use the armv7l version. 
 
 Todo
 ====

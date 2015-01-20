@@ -6,4 +6,4 @@
   roles:
     - fr24
   vars:
-    - fr24_url: https://dl.dropbox.com/u/66906/fr24feed_arm-le_242s.tgz
+    - fr24_url: http://feed.flightradar24.com/linux/fr24feed_1.0.11-3_armv7l.tgz
