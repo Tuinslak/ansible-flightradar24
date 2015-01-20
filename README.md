@@ -21,7 +21,7 @@ Manual labour
 =============
 
 * Be sure to edit `/root/flightradar24.sh` with your key. 
-* Be sure to [set the](https://github.com/Tuinslak/anisble-flightradar24/blob/master/site.yml) `fr24_url` to your architecture and to the [latest version](http://forum.flightradar24.com/threads/4270-Linux-feeder-software-for-Flightradar24).  
+* Be sure to [set the](https://github.com/Tuinslak/anisble-flightradar24/blob/master/site.yml) `fr24_url` to your architecture and to the latest version: [RPi]](http://feed.flightradar24.com/raspberry-pi/) & [Linux](http://feed.flightradar24.com/linux/).  
 
 Todo
 ====
