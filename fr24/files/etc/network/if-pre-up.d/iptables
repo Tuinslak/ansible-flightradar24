@@ -1,0 +1,3 @@
+#!/bin/bash
+/sbin/iptables-restore < /etc/network/iptables
+/sbin/ip6tables-restore < /etc/network/ip6tables

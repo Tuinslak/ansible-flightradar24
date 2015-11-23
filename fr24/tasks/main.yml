@@ -49,12 +49,12 @@
     - fr24
 
 - name: Symlink dump1090
-  shell: ln -sf /root/dump1090/dump1090 /bin/dump1090
+  file: src=/root/dump1090/dump1090 dest=/bin/dump1090 state=link
   tags:
     - fr24
 
 - name: Download Flightradar24
-  shell: wget {{ fr24_url }} && tar xvzf fr24feed_*_armv7l.tgz && mv fr24feed_armv7l/fr24feed flightradar24 && chmod +x flightradar24 && rm fr24feed_*_armv7l.tgz && rm -r fr24feed_armv7l
+  shell: wget {{ fr24_url }} && tar xvzf fr24feed_*_armv7l.tgz && mv fr24feed_armv7l/fr24feed flightradar24 && chmod +x flightradar24 && mv fr24feed_armv7l/timestamper timestamper && rm fr24feed_*_armv7l.tgz && rm -r fr24feed_armv7l
   tags:
     - fr24
 
@@ -73,11 +73,36 @@
   tags:
     - fr24
 
+- name: Set iptables
+  copy: src=etc/network/iptables dest=/etc/network/iptables
+  tags: 
+    - fr24
+    - iptables
+
+- name: Set ip6tables
+  copy: src=etc/network/ip6tables dest=/etc/network/ip6tables
+  tags: 
+    - fr24
+    - iptables
+
+- name: Set iptables script
+  copy: src=etc/network/if-pre-up.d/iptables dest=/etc/network/if-pre-up.d/iptables mode=0777
+  tags: 
+    - fr24
+    - iptables
+
+- name: Apply iptables rules
+  action: shell /etc/network/if-pre-up.d/iptables
+  tags: 
+    - fr24
+    - iptables
+
 - name: Install monitoring 
   apt: name={{ item }}
   with_items:
   - vnstat
   - monit
+  - munin-node
   tags:
     - fr24
 
@@ -85,6 +110,57 @@
   copy: src=etc/monit/monitrc dest=/etc/monit/monitrc
   notify: restart monit
   tags: 
+    - fr24
+
+- name: Set munin-node.conf
+  copy: src=etc/munin/munin-node.conf dest=/etc/munin/munin-node.conf
+  notify: restart munin-node
+  tags: 
+    - fr24
+
+- name: Remove munin plugins
+  file: path={{ item }} state=absent
+  with_items:
+    - /etc/munin/plugins/cpuspeed
+    - /etc/munin/plugins/df_inode
+    - /etc/munin/plugins/diskstats
+    - /etc/munin/plugins/entropy
+    - /etc/munin/plugins/forks
+    - /etc/munin/plugins/interrupts
+    - /etc/munin/plugins/irqstats
+    - /etc/munin/plugins/ntp_kernel_err
+    - /etc/munin/plugins/ntp_kernel_pll_freq
+    - /etc/munin/plugins/ntp_kernel_pll_off
+    - /etc/munin/plugins/open_files
+    - /etc/munin/plugins/open_inodes
+    - /etc/munin/plugins/postfix_mailvolume
+    - /etc/munin/plugins/proc_pri
+    - /etc/munin/plugins/threads
+  notify: restart munin-node
+  tags:
+    - fr24
+
+- name: Set munin plugins
+  file: src={{ item.path }} dest={{ item.dest }} state=link
+  with_items:
+    - { path: '/usr/share/munin/plugins/if_',         dest: '/etc/munin/plugins/if_tun0' }
+    - { path: '/usr/share/munin/plugins/if_',         dest: '/etc/munin/plugins/if_wlan0' }
+    - { path: '/usr/share/munin/plugins/if_err_',     dest: '/etc/munin/plugins/if_err_tun0' }
+    - { path: '/usr/share/munin/plugins/if_err_',     dest: '/etc/munin/plugins/if_err_wlan0' }
+    - { path: '/usr/share/munin/plugins/ping_',       dest: '/etc/munin/plugins/ping_' }
+  notify: restart munin-node
+  tags:
+    - fr24
+
+- name: Set munin ping config
+  copy: src=etc/munin/plugin-conf.d/ping_.conf dest=/etc/munin/plugin-conf.d/ping_.conf
+  notify: restart munin-node
+  tags:
+    - fr24
+
+- name: set hostname
+  hostname: name={{ radarhostname }}
+  tags:
     - fr24
 
 - name: Set reboot_no_internet.sh
