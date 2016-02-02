@@ -54,7 +54,7 @@
     - fr24
 
 - name: Download Flightradar24
-  shell: wget {{ fr24_url }} && tar xvzf fr24feed_*_armv7l.tgz && mv fr24feed_armv7l/fr24feed flightradar24 && chmod +x flightradar24 && mv fr24feed_armv7l/timestamper timestamper && rm fr24feed_*_armv7l.tgz && rm -r fr24feed_armv7l
+  shell: wget {{ fr24_url }} && tar xvzf fr24feed_*_armhf.tgz && mv fr24feed_armhf/fr24feed flightradar24 && chmod +x flightradar24 && mv fr24feed_armhf/timestamper timestamper && rm fr24feed_*_armhf.tgz && rm -r fr24feed_armhf
   tags:
     - fr24
 

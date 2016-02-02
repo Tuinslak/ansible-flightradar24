@@ -6,4 +6,4 @@
   roles:
     - fr24
   vars:
-    - fr24_url: http://feed.flightradar24.com/raspberry-pi/fr24feed_1.0.13-2_armv7l.tgz
+    - fr24_url: http://repo.feed.flightradar24.com/rpi_binaries/fr24feed_1.0.16-11_armhf.tgz
