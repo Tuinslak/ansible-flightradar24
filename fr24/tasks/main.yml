@@ -1,75 +1,41 @@
 ---
 
-- name: Install FR24 requirements 
-  apt: name={{ item }}
-  with_items:
-  - make
-  - cmake 
-  - gcc 
-  - pkg-config 
-  - libusb-1.0-0
-  - libusb-1.0-0-dev
-  - libc-dev
-  tags:
-    - fr24
-
 - name: Blacklist bad driver
   copy: src=etc/modprobe.d/dvb-t.conf dest=/etc/modprobe.d/dvb-t.conf
   tags:
     - fr24
 
-- name: Add osmocom key
-  action: shell /usr/bin/ssh-keyscan -H git.osmocom.org >> /etc/ssh/ssh_known_hosts
-  tags: 
-    - fr24
-
-- name: Clone rtl-sdr
-  git: repo=git://git.osmocom.org/rtl-sdr.git dest=/root/rtl-sdr
+- name: add apt keys
+  apt_key: keyserver=pgp.mit.edu id=40C430F5
   tags:
     - fr24
+    - apt
 
-- name: Make rtl-sdr
-  shell: cd rtl-sdr && mkdir -p build && cd build && cmake ../ -DINSTALL_UDEV_RULES=ON && make && make install && make clean
+- name: Copy fr24 apt source
+  copy: src=etc/apt/fr24.list dest=/etc/apt/sources.list.d/fr24.list
   tags:
     - fr24
-
-- name: Run ldconfig
-  shell: ldconfig
-  tags:
-    - fr24
-
-- name: Clone dump1090
-  git: repo=https://github.com/MalcolmRobb/dump1090.git dest=/root/dump1090
-  tags:
-    - fr24
-
-- name: Make dump1090
-  shell: make chdir=/root/dump1090/
-  tags:
-    - fr24
-
-- name: Symlink dump1090
-  file: src=/root/dump1090/dump1090 dest=/bin/dump1090 state=link
-  tags:
-    - fr24
-
-- name: Download Flightradar24
-  shell: wget {{ fr24_url }} && tar xvzf fr24feed_*_armhf.tgz && mv fr24feed_armhf/fr24feed flightradar24 && chmod +x flightradar24 && mv fr24feed_armhf/timestamper timestamper && rm fr24feed_*_armhf.tgz && rm -r fr24feed_armhf
-  tags:
-    - fr24
+    - apt
 
 - name: Create Flightradar24 config
   template: src=fr24feed.ini.j2 dest=/etc/fr24feed.ini
   tags:
     - fr24
 
-- name: Create Flightradar24 launch script
-  template: src=flightradar24.sh.j2 dest=/root/flightradar24.sh mode=0755
-  tags:
-    - fr24
+- name: Install fr24feed
+  apt: name=fr24feed state=latest update_cache=true
+  tags: 
+    - fr24 
+    - apt
 
-- name: Create Flightradar24 rc.local.d script
-  copy: src=etc/rc.local.d/fr24 dest=/etc/rc.local.d/90_fr24 mode=0755
+- service: 
+    name: Restart fr24feed
+    state: restarted
+    tags: 
+      - fr24 
+
+- name: Run ldconfig
+  shell: ldconfig
   tags:
     - fr24
 

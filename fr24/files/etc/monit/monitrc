@@ -15,7 +15,9 @@
  set eventqueue
      basedir /var/lib/monit/events # set the base directory where events will be stored
      slots 100                     # optionally limit the queue size
- set alert alert@tiete.be          # receive all alerts
+
+# disable email alerts
+ set alert alert@tiete.be but not on { icmp }   # receive all alerts
 
 #
 ###############################################################################
@@ -32,6 +34,7 @@
    start program = "/etc/init.d/openvpn start"
    stop program = "/etc/init.d/openvpn stop"
    if 5 restarts within 5 cycles then timeout 
+   noalert alert@flatturtle.com
 
  check host vpn with address 10.9.8.1
    if failed icmp type echo count 10 with timeout 10 seconds then exec "/etc/init.d/openvpn restart"
@@ -56,7 +59,7 @@
    if 5 restarts within 5 cycles then timeout
 
  check host public with address 8.8.8.8
-   if failed icmp type echo count 10 with timeout 10 seconds then exec "/etc/init.d/networking restart"
+   if failed icmp type echo count 3 with timeout 10 seconds then exec "/etc/init.d/networking restart"
 
 #
 ###############################################################################
